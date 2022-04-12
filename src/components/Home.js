@@ -5,6 +5,11 @@ import DropMenu from "./Dropdown";
 
 const Home = () => {
   const [memes, setMemes] = useState([]);
+  const [value,setValue]=useState('');
+  const handleSelect=(e)=>{
+    console.log(e);
+    setValue(e)
+  }
 
   useEffect(() => {
     const getMeme = `http://localhost:3001/memes/`;
@@ -22,11 +27,11 @@ const Home = () => {
     return (
 
 <div className="d-flex row">
-    <DropMenu DropMenu ={ DropMenu } />
+    <DropMenu DropMenu ={ DropMenu } value = {value} handleSelect = {handleSelect} />
   <div className="d-flex row">
   <div className="p-2">
   <div className="d-flex flex-row">
-  {memes.length>0 &&<Posts memes={memes} />}
+  {memes.length>0 &&<Posts memes={memes} value = {value}/>}
    </div>
 </div>
 </div>

@@ -1,10 +1,8 @@
 import React from "react";
-import memes from "./Home"
 
-
-const Post = ({ memes }) => {
-  console.log(memes);
-  const { title, imageurl, author, category } = memes;
+const Post = ({ meme }) => {
+  console.log(meme);
+  const { title, imageurl, author, category } = meme;
   return (
 <div className="row">
   <div className="col mx-3 col-sm-6">
