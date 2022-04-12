@@ -5,7 +5,7 @@ import DropMenu from "./Dropdown";
 
 const Home = () => {
   const [memes, setMemes] = useState([]);
-  const [value,setValue]=useState('');
+  const [value,setValue]=useState('All');
   const handleSelect=(e)=>{
     console.log(e);
     setValue(e)
