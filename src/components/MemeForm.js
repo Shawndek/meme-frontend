@@ -1,20 +1,37 @@
 import React from "react";
-import { useState } from "react";
-import { createClient } from "contentful-management";
+import { useState /* , useEffect */ } from "react";
+
+import axios from "axios";
 
 export default function App() {
-  const spaceID = "7sanr9ja5o2v";
-  const accessToken = "CFPAT-I1gQhnaX5mx-FhN7WPL-Y7Gd6UB-QKWS6GB9v2IBYIA";
-  const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [uploadedImage] = useState(null);
-  const [{ title, author, categories }, setFormState] = useState({
+  const [{ title, author, category, imageurl }, setFormState] = useState({
     title: "",
     author: "",
-    categories: [],
+    imageurl: "",
+    category: "",
   });
 
+  const uploadImage = /* useEffect( */ () => {
+    /* const id = crypto.randomUUID(); */
+    const createMeme = "http://localhost:3001/memes/";
+    axios
+      .post(createMeme, {
+        title: title,
+        author: author,
+        category: category,
+        imageurl: imageurl,
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }; /*, [] ) */
+
   const handleChange = (e) => {
+    /* 
     if (e.target.nodeName === "SELECT") {
       setFormState((prev) => ({
         ...prev,
@@ -23,80 +40,13 @@ export default function App() {
           (option) => option.value
         ),
       }));
-    } else {
-      setFormState((prev) => ({
-        ...prev,
-        [e.target.name]: e.target.value,
-      }));
-    }
+    } else { */
+    setFormState((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  const uploadImage = async (e) => {
-    try {
-      e.preventDefault();
-      setLoading(true);
-      if (!file) return alert("Select a file");
-      const client = createClient({
-        accessToken,
-      });
-      const fileContents = await file.arrayBuffer();
-      const space = await client.getSpace(spaceID);
-      const environment = await space.getEnvironment("master");
-      // Create asset
-      const newAsset = await environment.createAssetFromFiles({
-        fields: {
-          title: {
-            "en-US": `${file.name}-${crypto.randomUUID()}`,
-          },
-          description: {
-            "en-US": "Cat",
-          },
-          file: {
-            "en-US": {
-              contentType: file.type,
-              fileName: file.name,
-              file: fileContents,
-            },
-          },
-        },
-      });
-      const processedAsset = await newAsset.processForAllLocales();
-      const publishedAsset = await processedAsset.publish();
-      // Create entry
-      const entry = await environment.createEntry("post", {
-        fields: {
-          author: {
-            "en-US": author,
-          },
-          categories: {
-            "en-US": categories,
-          },
-          title: {
-            "en-US": title,
-          },
-          image: {
-            "en-US": {
-              sys: {
-                id: publishedAsset.sys.id,
-                linkType: "Asset",
-                type: "Link",
-              },
-            },
-          },
-        },
-      });
-      const publishedEntry = await entry.publish();
-
-      console.log(publishedEntry);
-      setFile(null);
-      setLoading(false);
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <h1>LOADING...</h1>;
   return (
     <div className="App">
       <h2>Create a meme</h2>
@@ -109,14 +59,15 @@ export default function App() {
           onChange={handleChange}
         />
         <br />
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-        <label>Category</label>
-        <select
-          name="categories"
-          value={categories}
+        <input
+          type="text"
+          placeholder="URL"
+          value={imageurl}
+          name="imageurl"
           onChange={handleChange}
-          multiple
-        >
+        />
+        <label>Category</label>
+        <select name="category" value={category} onChange={handleChange}>
           <option value="Trending">trending</option>
           <option value="Classics">classics</option>
           <option value="Animals">animals</option>
@@ -136,7 +87,11 @@ export default function App() {
         <input type="submit" value="Upload" />
       </form>
       {uploadedImage && (
-        <img src={uploadedImage.url} width="300" alt={uploadedImage.fileName} />
+        <img
+          src={uploadedImage.imageurl}
+          width="300"
+          alt={uploadedImage.title}
+        />
       )}
     </div>
   );
